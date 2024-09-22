@@ -3,12 +3,12 @@ const defaultApiUrl = 'https://www.thecolorapi.com/scheme?hex=F6BE00&mode=analog
 
 // Default color scheme in case the API fails
 const defaultColors = [
-  { name: "Pantone 7406 C", hex: "#F6BE00" },
-  { name: "Pantone 1375 C", hex: "#FF8C00" },
-  { name: "Pantone 106 C", hex: "#FCE300" },
-  { name: "Pantone 1625 C", hex: "#FF6A39" },
-  { name: "Pantone 178 C", hex: "#FF4F51" }
-];
+    { name: "White", hex: "#FFFFFF" },
+    { name: "Red", hex: "#FF0000" },
+    { name: "Green", hex: "#00FF00" },
+    { name: "Blue", hex: "#0000FF" },
+    { name: "Black", hex: "#000000" }
+  ];
 
 // Fetch Colors from API with Fallback
 async function fetchColors(apiUrl = defaultApiUrl) {
@@ -30,7 +30,6 @@ async function fetchColors(apiUrl = defaultApiUrl) {
         renderColors(colorsFromApi);
     } catch (error) {
         console.error('Error fetching colors from API:', error);
-        alert("Error fetching colors from API. Loading default colors.");
         window.colors = defaultColors;  // Fallback to default colors
         renderColors(defaultColors);
     } finally {
@@ -137,9 +136,9 @@ function completeOnboarding() {
 
 // Handle Color Picker
 function updateColors(event) {
-    const colorHex = event.target.value.substring(1);
+    const colorHex = event.target.value.substring(1);  // Get the color value without the '#' character
     const apiUrl = `https://www.thecolorapi.com/scheme?hex=${colorHex}&mode=analogic&count=5`;
-    fetchColors(apiUrl);
+    fetchColors(apiUrl);  // Call the API with the correct URL
 }
 
 // Feedback Form Submission
