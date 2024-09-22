@@ -12,10 +12,11 @@ const defaultColors = [
 
 // Fetch Colors from API with Fallback
 async function fetchColors(apiUrl = defaultApiUrl) {
+    console.log("Making API call to:", apiUrl);
     showLoadingSpinner(true);
     try {
         const response = await fetch(apiUrl);
-        if (!response.ok) throw new Error("Failed to fetch colors.");
+        if (!response.ok) throw new Error(`Failed to fetch colors, status: ${response.status}`);
         const data = await response.json();
 
         // Transform data from API to match the existing structure
