@@ -75,6 +75,55 @@ function renderColors(colorsToRender) {
     });
 }
 
+// Utility function to determine if a color is light
+function isLightColor(hex) {
+    const r = parseInt(hex.substr(1, 2), 16);
+    const g = parseInt(hex.substr(3, 2), 16);
+    const b = parseInt(hex.substr(5, 2), 16);
+    // Calculate luminance
+    const luminance = 0.2126 * r + 0.7152 * g + 0.0722 * b;
+    return luminance > 180; // If luminance is high, it's a light color
+}
+
+// Render Colors
+function renderColors(colorsToRender) {
+    const colorGrid = document.getElementById('colorGrid');
+    colorGrid.innerHTML = ''; // Clear previous colors
+
+    const selectedLanguage = document.getElementById('language').value;
+
+    colorsToRender.forEach(color => {
+        const colorBlock = document.createElement('div');
+        colorBlock.classList.add('color-block');
+        colorBlock.style.backgroundColor = color.hex;
+
+        const colorName = document.createElement('div');
+        colorName.classList.add('color-name');
+        colorName.textContent = color.name;
+
+        const colorCode = document.createElement('div');
+        colorCode.classList.add('color-code');
+        colorCode.textContent = formatColorCode(color.hex, selectedLanguage);
+
+        // If the background is light, switch text color to black
+        if (isLightColor(color.hex)) {
+            colorName.classList.add('light-text');
+            colorCode.classList.add('light-text');
+        }
+
+        const copyIcon = document.createElement('i');
+        copyIcon.classList.add('fas', 'fa-copy', 'copy-icon');
+        copyIcon.setAttribute('data-code', formatColorCode(color.hex, selectedLanguage));
+        copyIcon.addEventListener('click', copyColorCode);
+
+        colorBlock.appendChild(colorName);
+        colorBlock.appendChild(colorCode);
+        colorBlock.appendChild(copyIcon);
+        colorGrid.appendChild(colorBlock);
+    });
+}
+
+
 // Format color code based on the selected language
 function formatColorCode(hex, language) {
     switch (language) {

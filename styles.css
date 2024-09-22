@@ -250,3 +250,16 @@ footer a {
 footer a:hover {
     text-decoration: underline;
 }
+
+.color-name, .color-code {
+    color: white;
+    font-weight: bold;
+    font-size: 1.2em;
+    text-align: center;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.6); /* Add shadow for better visibility */
+}
+
+/* Specific class for light backgrounds like white */
+.light-text {
+    color: black; /* Use black text on light backgrounds */
+}
