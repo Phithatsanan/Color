@@ -1,9 +1,16 @@
 // Default API endpoint for fetching colors
-const defaultApiUrl = 'https://www.thecolorapi.com/scheme?hex=F6BE00&mode=analogic&count=10';
+const defaultApiUrl = 'https://www.thecolorapi.com/scheme?hex=F6BE00&mode=analogic&count=5';
 
-let currentOnboardingStep = 1;
+// Default color scheme in case the API fails
+const defaultColors = [
+  { name: "Pantone 7406 C", hex: "#F6BE00" },
+  { name: "Pantone 1375 C", hex: "#FF8C00" },
+  { name: "Pantone 106 C", hex: "#FCE300" },
+  { name: "Pantone 1625 C", hex: "#FF6A39" },
+  { name: "Pantone 178 C", hex: "#FF4F51" }
+];
 
-// Fetch Colors from API
+// Fetch Colors from API with Fallback
 async function fetchColors(apiUrl = defaultApiUrl) {
     showLoadingSpinner(true);
     try {
@@ -19,12 +26,12 @@ async function fetchColors(apiUrl = defaultApiUrl) {
 
         // Store colors in the global scope for filtering
         window.colors = colorsFromApi;
-
-        // Initial render with API data
         renderColors(colorsFromApi);
     } catch (error) {
         console.error('Error fetching colors from API:', error);
-        alert("Error fetching colors. Please try again.");
+        alert("Error fetching colors from API. Loading default colors.");
+        window.colors = defaultColors;  // Fallback to default colors
+        renderColors(defaultColors);
     } finally {
         showLoadingSpinner(false);
     }
@@ -104,6 +111,10 @@ function createTooltip(element, message) {
 // Filter Colors based on search input
 function filterColors() {
     const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+    if (!window.colors) {
+        console.error("No colors available to filter.");
+        return;
+    }
     const filteredColors = window.colors.filter(color => 
         color.name.toLowerCase().includes(searchTerm) || 
         color.hex.toLowerCase().includes(searchTerm)
@@ -126,7 +137,7 @@ function completeOnboarding() {
 // Handle Color Picker
 function updateColors(event) {
     const colorHex = event.target.value.substring(1);
-    const apiUrl = `https://www.thecolorapi.com/scheme?hex=${colorHex}&mode=analogic&count=10`;
+    const apiUrl = `https://www.thecolorapi.com/scheme?hex=${colorHex}&mode=analogic&count=5`;
     fetchColors(apiUrl);
 }
 
