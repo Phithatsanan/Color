@@ -1,0 +1,252 @@
+/* CSS Variables for Consistency */
+:root {
+    --primary-color: #6cace4;
+    --secondary-color: #f66fb3;
+    --accent-color: #ff9900;
+    --text-color: #333;
+    --white: #fff;
+    --shadow-color: rgba(0, 0, 0, 0.1);
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Roboto', sans-serif;
+    background-color: #f9f9f9;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+header {
+    padding: 30px 20px;
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    width: 100%;
+    text-align: center;
+    color: white;
+}
+
+h1 {
+    font-size: 2.5em;
+    margin-bottom: 10px;
+}
+
+header p {
+    font-size: 1.2em;
+}
+
+/* Search Input */
+.search-container {
+    position: relative;
+    width: 50%;
+    margin: 30px auto;
+}
+
+#searchInput {
+    width: 100%;
+    padding: 15px;
+    padding-left: 45px;
+    font-size: 1.2em;
+    border: 2px solid #ddd;
+    border-radius: 25px;
+    outline: none;
+    box-shadow: 0 4px 8px var(--shadow-color);
+}
+
+.search-icon {
+    position: absolute;
+    top: 50%;
+    left: 15px;
+    transform: translateY(-50%);
+    font-size: 1.5em;
+    color: #aaa;
+}
+
+/* Language Selector */
+.language-select {
+    margin: 20px 0;
+    font-size: 1.2em;
+}
+
+.language-select select {
+    padding: 10px;
+    font-size: 1em;
+    border-radius: 5px;
+    border: 2px solid #ddd;
+}
+
+/* Color Grid */
+.color-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 20px;
+    justify-items: center;
+    padding: 20px;
+    width: 100%;
+    max-width: 1200px;
+}
+
+.color-block {
+    position: relative;
+    width: 180px;
+    height: 180px;
+    border-radius: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0px 5px 15px var(--shadow-color);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    color: white;
+    font-weight: bold;
+    text-align: center;
+}
+
+.color-block:hover {
+    transform: scale(1.05);
+    box-shadow: 0px 8px 20px var(--shadow-color);
+}
+
+/* Copy Icon */
+.copy-icon {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    font-size: 1.2em;
+    cursor: pointer;
+    color: white;
+}
+
+.copy-icon:hover {
+    color: #fffa;
+}
+
+/* Onboarding Tooltips */
+.onboarding-tooltip {
+    position: absolute;
+    top: 50px;
+    left: 20px;
+    background-color: white;
+    padding: 10px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px var(--shadow-color);
+    z-index: 1000;
+    display: none;
+}
+
+/* Loading Spinner */
+.loading-spinner {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.spinner {
+    border: 5px solid rgba(0, 0, 0, 0.1);
+    border-left-color: var(--accent-color);
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+/* Cookies Modal */
+.cookie-modal {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    color: white;
+    text-align: center;
+    padding: 20px;
+    z-index: 9999;
+}
+
+.cookie-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.cookie-modal button {
+    background-color: var(--accent-color);
+    color: white;
+    border: none;
+    padding: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.cookie-modal button:hover {
+    background-color: #ff8500;
+}
+
+/* Feedback Form */
+.feedback-container {
+    margin: 40px 0;
+    text-align: center;
+}
+
+.feedback-container form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.feedback-container textarea {
+    width: 80%;
+    padding: 10px;
+    margin-bottom: 20px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+.feedback-container button {
+    padding: 10px 20px;
+    border: none;
+    background-color: var(--accent-color);
+    color: white;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.feedback-container button:hover {
+    background-color: #ff8500;
+}
+
+footer {
+    margin-top: 40px;
+    padding: 20px;
+    background-color: var(--text-color);
+    color: white;
+    width: 100%;
+    text-align: center;
+}
+
+footer a {
+    color: var(--secondary-color);
+    text-decoration: none;
+}
+
+footer a:hover {
+    text-decoration: underline;
+}
