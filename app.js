@@ -4,6 +4,7 @@
 let currentColorHex = "F6BE00";
 let currentSchemeMode = "analogic";
 let currentSchemeCount = 5;
+window.colors = []; // store fetched colors
 const fallbackColors = [
   { name: "White", hex: "#FFFFFF" },
   { name: "Red", hex: "#FF0000" },
@@ -13,132 +14,121 @@ const fallbackColors = [
 ];
 
 /***************************************************/
-/*                 Onboarding Logic               */
+/*                 Tab Navigation                 */
 /***************************************************/
-let onboardingStep = 1;
-function startOnboarding() {
-  const overlay = document.getElementById("onboardingOverlay");
-  overlay.style.display = "flex";
-  showOnboardingSlide(1);
-}
+document.addEventListener("DOMContentLoaded", () => {
+  const tabs = document.querySelectorAll(".tab-item");
+  const contents = document.querySelectorAll(".tab-content");
 
-function showOnboardingSlide(step) {
-  document.getElementById(`onboardingSlide${step}`).style.display = "block";
-}
+  tabs.forEach(tab => {
+    tab.addEventListener("click", () => {
+      // Remove active from all
+      tabs.forEach(t => t.classList.remove("active"));
+      contents.forEach(c => c.classList.remove("active"));
 
-function hideOnboardingSlide(step) {
-  document.getElementById(`onboardingSlide${step}`).style.display = "none";
-}
+      // Activate selected
+      tab.classList.add("active");
+      const targetId = tab.getAttribute("data-tab");
+      document.getElementById(targetId).classList.add("active");
 
-function nextOnboardingSlide() {
-  hideOnboardingSlide(onboardingStep);
-  onboardingStep++;
-  showOnboardingSlide(onboardingStep);
-}
-
-function endOnboarding() {
-  hideOnboardingSlide(onboardingStep);
-  document.getElementById("onboardingOverlay").style.display = "none";
-  onboardingStep = 1;
-}
+      // If user just clicked "Favorites" tab, re-render the favorites:
+      if (targetId === "favoritesTab") {
+        renderFavorites();
+      }
+      // If user just clicked "colorBlindnessTab", run simulator:
+      if (targetId === "colorBlindnessTab") {
+        simulateColorBlindness();
+      }
+    });
+  });
+});
 
 /***************************************************/
-/*           Fetch & Render Color Scheme          */
+/*        Fetch & Render Colors (Explorer)        */
 /***************************************************/
 async function fetchColors() {
-  const url = `https://www.thecolorapi.com/scheme?hex=${currentColorHex}&mode=${currentSchemeMode}&count=${currentSchemeCount}`;
   showLoadingSpinner(true);
+  const url = `https://www.thecolorapi.com/scheme?hex=${currentColorHex}&mode=${currentSchemeMode}&count=${currentSchemeCount}`;
   try {
-    const response = await fetch(url);
-    if (!response.ok)
-      throw new Error(`Failed to fetch colors, status: ${response.status}`);
-    const data = await response.json();
-
-    // Transform data
-    window.colors = data.colors.map((color) => {
-      const { value: hex } = color.hex;
-      const { value: name } = color.name;
-      return { name, hex };
-    });
+    const res = await fetch(url);
+    if (!res.ok) throw new Error("Failed to fetch colors");
+    const data = await res.json();
+    window.colors = data.colors.map(col => ({
+      name: col.name.value,
+      hex: col.hex.value
+    }));
     renderColors(window.colors);
-  } catch (error) {
-    console.error("Error fetching colors:", error);
+  } catch (err) {
+    console.error("Error fetching:", err);
     window.colors = fallbackColors;
-    renderColors(fallbackColors);
+    renderColors(window.colors);
   } finally {
     showLoadingSpinner(false);
   }
 }
 
-function renderColors(colorsArray) {
+function renderColors(colorArr) {
   const colorGrid = document.getElementById("colorGrid");
   colorGrid.innerHTML = "";
+  const selectedFormat = document.getElementById("language").value;
 
-  const selectedLanguage = document.getElementById("language").value;
+  colorArr.forEach(({ name, hex }) => {
+    const block = document.createElement("div");
+    block.classList.add("color-block");
+    block.style.backgroundColor = hex;
 
-  colorsArray.forEach((colorObj) => {
-    const { name, hex } = colorObj;
-    const colorBlock = document.createElement("div");
-    colorBlock.classList.add("color-block");
-    colorBlock.style.backgroundColor = hex;
+    // Text for name & code
+    const nameEl = document.createElement("div");
+    nameEl.classList.add("color-name");
+    nameEl.textContent = name;
 
-    // Determine if text color should be black
+    const codeEl = document.createElement("div");
+    codeEl.classList.add("color-code");
+    const formatted = formatColorCode(hex, selectedFormat);
+    codeEl.textContent = formatted;
+
+    // If it's a bright color, invert text
     if (isLightColor(hex)) {
-      colorBlock.classList.add("light-bg");
+      block.classList.add("light-bg");
+      nameEl.classList.remove("color-name");
+      codeEl.classList.remove("color-code");
     }
 
-    // Name & Code
-    const colorName = document.createElement("div");
-    colorName.classList.add("color-name");
-    colorName.textContent = name;
+    // COPY button
+    const copyBtn = document.createElement("button");
+    copyBtn.classList.add("copy-btn");
+    copyBtn.textContent = "Copy";
+    copyBtn.addEventListener("click", () => copyText(formatted));
 
-    const colorCode = document.createElement("div");
-    colorCode.classList.add("color-code");
-    const formattedCode = formatColorCode(hex, selectedLanguage);
-    colorCode.textContent = formattedCode;
+    // FAVORITES button
+    const favBtn = document.createElement("button");
+    favBtn.classList.add("fav-btn");
+    favBtn.textContent = "Add to Favorites";
+    favBtn.addEventListener("click", () => addToFavorites({ name, hex }));
 
-    // Adjust text color for light BG
-    if (isLightColor(hex)) {
-      colorName.classList.add("light-text");
-      colorCode.classList.add("light-text");
-    }
-
-    // Copy Icon
-    const copyIcon = document.createElement("i");
-    copyIcon.classList.add("fas", "fa-copy", "copy-icon");
-    copyIcon.setAttribute("data-code", formattedCode);
-    copyIcon.addEventListener("click", copyColorCode);
-
-    // Favorites Icon
-    const favIcon = document.createElement("i");
-    favIcon.classList.add("fas", "fa-star");
-    favIcon.setAttribute("title", "Add to Favorites");
-    favIcon.addEventListener("click", () => addToFavorites({ name, hex }));
-
-    colorBlock.appendChild(colorName);
-    colorBlock.appendChild(colorCode);
-    colorBlock.appendChild(favIcon);
-    colorBlock.appendChild(copyIcon);
-    colorGrid.appendChild(colorBlock);
+    block.appendChild(nameEl);
+    block.appendChild(codeEl);
+    block.appendChild(copyBtn);
+    block.appendChild(favBtn);
+    colorGrid.appendChild(block);
   });
 }
 
 /***************************************************/
-/*              Copy to Clipboard Logic           */
+/*                Copy to Clipboard               */
 /***************************************************/
-function copyColorCode(e) {
-  const code = e.target.getAttribute("data-code");
+function copyText(text) {
   navigator.clipboard
-    .writeText(code)
-    .then(() => alert(`Copied: ${code}`))
-    .catch((err) => console.error("Failed to copy:", err));
+    .writeText(text)
+    .then(() => alert(`Copied: ${text}`))
+    .catch(err => console.error("Copy failed:", err));
 }
 
 /***************************************************/
-/*            Color Format Conversions            */
+/*               Format Conversions               */
 /***************************************************/
 function formatColorCode(hex, format) {
-  switch (format.toLowerCase()) {
+  switch (format) {
     case "css":
       return `background-color: ${hex};`;
     case "js":
@@ -152,19 +142,17 @@ function formatColorCode(hex, format) {
     case "cmyk":
       return hexToCMYKString(hex);
     default:
-      return hex; // hex
+      return hex; // default is hex
   }
 }
 
-// Convert HEX to RGB string
 function hexToRGBString(hex) {
-  const r = parseInt(hex.substr(1, 2), 16);
-  const g = parseInt(hex.substr(3, 2), 16);
-  const b = parseInt(hex.substr(5, 2), 16);
+  const r = parseInt(hex.substr(1,2), 16);
+  const g = parseInt(hex.substr(3,2), 16);
+  const b = parseInt(hex.substr(5,2), 16);
   return `rgb(${r}, ${g}, ${b})`;
 }
 
-// Convert HEX to HSL string
 function hexToHSLString(hex) {
   const r = parseInt(hex.substr(1, 2), 16) / 255;
   const g = parseInt(hex.substr(3, 2), 16) / 255;
@@ -172,74 +160,79 @@ function hexToHSLString(hex) {
 
   const max = Math.max(r, g, b), min = Math.min(r, g, b);
   let h, s, l = (max + min) / 2;
-
-  if(max === min){
-    h = s = 0; // achromatic
+  if (max === min) {
+    h = s = 0; // grayscale
   } else {
     const diff = max - min;
-    s = l > 0.5 ? diff / (2 - max - min) : diff / (max + min);
-    switch(max){
-      case r: h = (g - b) / diff + (g < b ? 6 : 0); break;
-      case g: h = (b - r) / diff + 2; break;
-      case b: h = (r - g) / diff + 4; break;
+    s = l > 0.5 ? diff/(2 - max - min) : diff/(max + min);
+    switch (max) {
+      case r: h = (g - b)/diff + (g < b ? 6 : 0); break;
+      case g: h = (b - r)/diff + 2; break;
+      case b: h = (r - g)/diff + 4; break;
     }
     h /= 6;
   }
-  h = Math.round(h * 360);
-  s = Math.round(s * 100);
-  l = Math.round(l * 100);
+  h = Math.round(360 * h);
+  s = Math.round(100 * s);
+  l = Math.round(100 * l);
   return `hsl(${h}, ${s}%, ${l}%)`;
 }
 
-// Convert HEX to CMYK string (approximate)
 function hexToCMYKString(hex) {
-  const r = parseInt(hex.substr(1, 2), 16) / 255;
-  const g = parseInt(hex.substr(3, 2), 16) / 255;
-  const b = parseInt(hex.substr(5, 2), 16) / 255;
-
-  const k = 1 - Math.max(r, g, b);
-  const c = (1 - r - k) / (1 - k) || 0;
-  const m = (1 - g - k) / (1 - k) || 0;
-  const y = (1 - b - k) / (1 - k) || 0;
-
+  const r = parseInt(hex.substr(1,2),16)/255;
+  const g = parseInt(hex.substr(3,2),16)/255;
+  const b = parseInt(hex.substr(5,2),16)/255;
+  const k = 1 - Math.max(r,g,b);
+  const c = (1-r-k)/(1-k) || 0;
+  const m = (1-g-k)/(1-k) || 0;
+  const y = (1-b-k)/(1-k) || 0;
   return `cmyk(${(c*100).toFixed(0)}%, ${(m*100).toFixed(0)}%, ${(y*100).toFixed(0)}%, ${(k*100).toFixed(0)}%)`;
 }
 
 /***************************************************/
-/*                 Search & Filter                */
+/*                Light Color Check               */
+/***************************************************/
+function isLightColor(hex) {
+  const r = parseInt(hex.substr(1,2), 16);
+  const g = parseInt(hex.substr(3,2), 16);
+  const b = parseInt(hex.substr(5,2), 16);
+  const luminance = 0.2126 * r + 0.7152 * g + 0.0722 * b;
+  return luminance > 180;
+}
+
+/***************************************************/
+/*             Search & Filter Colors             */
 /***************************************************/
 function filterColors() {
   const searchTerm = document.getElementById("searchInput").value.toLowerCase();
-  if (!window.colors) return;
+  if (!window.colors.length) return;
 
-  const filtered = window.colors.filter((colorObj) => {
-    const { name, hex } = colorObj;
-    const colorFormats = [
+  const filtered = window.colors.filter(color => {
+    const { name, hex } = color;
+    const stringsToMatch = [
       name.toLowerCase(),
       hex.toLowerCase(),
       hexToRGBString(hex).toLowerCase(),
       hexToHSLString(hex).toLowerCase(),
       hexToCMYKString(hex).toLowerCase()
     ];
-    return colorFormats.some((fmt) => fmt.includes(searchTerm));
+    return stringsToMatch.some(str => str.includes(searchTerm));
   });
   renderColors(filtered);
 }
 
 /***************************************************/
-/*               Favorites Logic                  */
+/*     Add & Remove Favorites (Favorites Tab)     */
 /***************************************************/
 function addToFavorites(colorObj) {
   let favorites = JSON.parse(localStorage.getItem("favorites")) || [];
-  const exists = favorites.some((fav) => fav.hex === colorObj.hex);
-  if (!exists) {
+  if (!favorites.some(f => f.hex === colorObj.hex)) {
     favorites.push(colorObj);
     localStorage.setItem("favorites", JSON.stringify(favorites));
-    alert(`Added ${colorObj.name} to Favorites!`);
+    alert(`Added ${colorObj.name} to favorites!`);
   } else {
-    alert(`${colorObj.name} is already in your Favorites!`);
+    alert(`${colorObj.name} is already in favorites!`);
   }
-  renderFavorites();
 }
 
 function renderFavorites() {
@@ -247,7 +240,7 @@ function renderFavorites() {
   const listEl = document.getElementById("favoritesList");
   listEl.innerHTML = "";
 
-  favorites.forEach((fav) => {
+  favorites.forEach(fav => {
     const item = document.createElement("div");
     item.classList.add("favorite-item");
 
@@ -255,84 +248,74 @@ function renderFavorites() {
     swatch.classList.add("favorite-color-swatch");
     swatch.style.backgroundColor = fav.hex;
 
-    const name = document.createElement("span");
-    name.textContent = fav.name;
-    name.style.marginRight = "0.5rem";
+    const nameSpan = document.createElement("span");
+    nameSpan.textContent = fav.name;
 
     const removeBtn = document.createElement("i");
     removeBtn.classList.add("fas", "fa-trash", "remove-favorite");
     removeBtn.addEventListener("click", () => removeFavorite(fav.hex));
 
     item.appendChild(swatch);
-    item.appendChild(name);
+    item.appendChild(nameSpan);
     item.appendChild(removeBtn);
+
     listEl.appendChild(item);
   });
 }
 
 function removeFavorite(hex) {
   let favorites = JSON.parse(localStorage.getItem("favorites")) || [];
-  favorites = favorites.filter((fav) => fav.hex !== hex);
+  favorites = favorites.filter(f => f.hex !== hex);
   localStorage.setItem("favorites", JSON.stringify(favorites));
   renderFavorites();
 }
 
 /***************************************************/
-/*               Advanced Tools Logic             */
+/*           Accessibility: Contrast Check        */
 /***************************************************/
-
-/* 1. Contrast Checker */
 function checkContrast() {
-  const color1 = document.getElementById("contrastColor1").value;
-  const color2 = document.getElementById("contrastColor2").value;
-  const ratio = getContrastRatio(color1, color2).toFixed(2);
+  const c1 = document.getElementById("contrastColor1").value;
+  const c2 = document.getElementById("contrastColor2").value;
+  const ratio = getContrastRatio(c1, c2).toFixed(2);
   document.getElementById("contrastResult").textContent = `Contrast Ratio: ${ratio}`;
-
-  // (Optional) Check if ratio meets WCAG guidelines
-  // For example: ratio >= 4.5 for normal text
-  // You could add more robust checking and display pass/fail messages
 }
-
-/** Returns contrast ratio of two hex colors */
 function getContrastRatio(hex1, hex2) {
   const lum1 = getRelativeLuminance(hex1);
   const lum2 = getRelativeLuminance(hex2);
-  const brightest = Math.max(lum1, lum2);
-  const darkest = Math.min(lum1, lum2);
-  return (brightest + 0.05) / (darkest + 0.05);
+  const bright = Math.max(lum1, lum2);
+  const dark = Math.min(lum1, lum2);
+  return (bright + 0.05)/(dark + 0.05);
 }
-
-/** Returns the relative luminance of a hex color */
 function getRelativeLuminance(hex) {
-  const rgb = [1, 3, 5].map((i) => {
-    let channel = parseInt(hex.substr(i, 2), 16) / 255;
-    return channel <= 0.03928
-      ? channel / 12.92
-      : Math.pow((channel + 0.055) / 1.055, 2.4);
+  const rgb = [1,3,5].map(i => {
+    let c = parseInt(hex.substr(i,2),16)/255;
+    return (c <= 0.03928) ? c/12.92 : Math.pow((c+0.055)/1.055, 2.4);
   });
-  // rgb[0] = R, rgb[1] = G, rgb[2] = B
-  return 0.2126 * rgb[0] + 0.7152 * rgb[1] + 0.0722 * rgb[2];
+  return 0.2126*rgb[0] + 0.7152*rgb[1] + 0.0722*rgb[2];
 }
 
-/* 2. Color-Blindness Simulator (Simple) */
+/***************************************************/
+/*      Color Blindness Simulator (Tab 3)         */
+/***************************************************/
 const colorBlindTypes = [
-  { type: "None", fn: (r, g, b) => [r, g, b] },
+  { type: "None", fn: (r,g,b)=>[r,g,b] },
   { type: "Protanopia", fn: protanopia },
   { type: "Deuteranopia", fn: deuteranopia },
   { type: "Tritanopia", fn: tritanopia },
   { type: "Achromatopsia", fn: achromatopsia }
 ];
+
 function simulateColorBlindness() {
   const color = document.getElementById("simulatorColorPicker").value;
-  const r = parseInt(color.substr(1, 2), 16);
-  const g = parseInt(color.substr(3, 2), 16);
-  const b = parseInt(color.substr(5, 2), 16);
+  const r = parseInt(color.substr(1,2),16);
+  const g = parseInt(color.substr(3,2),16);
+  const b = parseInt(color.substr(5,2),16);
 
   const gallery = document.getElementById("simulationGallery");
   gallery.innerHTML = "";
 
   colorBlindTypes.forEach(({ type, fn }) => {
-    const [nr, ng, nb] = fn(r, g, b);
+    const [nr, ng, nb] = fn(r,g,b);
     const hexVal = rgbToHex(nr, ng, nb);
     const swatch = document.createElement("div");
     swatch.classList.add("simulated-swatch");
@@ -343,50 +326,43 @@ function simulateColorBlindness() {
   });
 }
 
-/** Conversion to hex */
-function rgbToHex(r, g, b) {
-  return (
-    "#" +
-    [r, g, b]
-      .map((val) => {
-        const hex = val.toString(16);
-        return hex.length === 1 ? "0" + hex : hex;
-      })
-      .join("")
-  );
-}
-
-/** Basic color-blindness transformations (approximate) */
-function protanopia(r, g, b) {
-  // Very approximate matrix
-  const nr = 0.567 * r + 0.433 * g + 0.0 * b;
-  const ng = 0.558 * r + 0.442 * g + 0.0 * b;
-  const nb = 0.0 * r + 0.242 * g + 0.758 * b;
+// Simple color-blindness approximation
+function protanopia(r,g,b) {
+  const nr = 0.567*r + 0.433*g;
+  const ng = 0.558*r + 0.442*g;
+  const nb = 0.242*g + 0.758*b;
   return [Math.round(nr), Math.round(ng), Math.round(nb)];
 }
-function deuteranopia(r, g, b) {
-  const nr = 0.625 * r + 0.375 * g + 0.0 * b;
-  const ng = 0.7 * r + 0.3 * g + 0.0 * b;
-  const nb = 0.0 * r + 0.3 * g + 0.7 * b;
+function deuteranopia(r,g,b) {
+  const nr = 0.625*r + 0.375*g;
+  const ng = 0.7*r + 0.3*g;
+  const nb = 0.3*g + 0.7*b;
   return [Math.round(nr), Math.round(ng), Math.round(nb)];
 }
-function tritanopia(r, g, b) {
-  const nr = 0.95 * r + 0.05 * g + 0.0 * b;
-  const ng = 0.0 * r + 0.433 * g + 0.567 * b;
-  const nb = 0.0 * r + 0.475 * g + 0.525 * b;
+function tritanopia(r,g,b) {
+  const nr = 0.95*r + 0.05*g;
+  const ng = 0.433*g + 0.567*b;
+  const nb = 0.475*g + 0.525*b;
   return [Math.round(nr), Math.round(ng), Math.round(nb)];
 }
-function achromatopsia(r, g, b) {
-  // average out R, G, B
-  const grey = 0.299 * r + 0.587 * g + 0.114 * b;
+function achromatopsia(r,g,b) {
+  const grey = 0.299*r + 0.587*g + 0.114*b;
   return [Math.round(grey), Math.round(grey), Math.round(grey)];
 }
+function rgbToHex(r,g,b) {
+  return "#" + [r,g,b].map(c => {
+    const hex = c.toString(16);
+    return hex.length===1 ? "0"+hex : hex;
+  }).join("");
+}
 
-/* 3. Gradient Generator */
+/***************************************************/
+/*         Gradient Generator (Tab 4)             */
+/***************************************************/
 function generateGradient() {
-  const color1 = document.getElementById("gradientColor1").value;
-  const color2 = document.getElementById("gradientColor2").value;
-  const gradient = `linear-gradient(90deg, ${color1}, ${color2})`;
+  const c1 = document.getElementById("gradientColor1").value;
+  const c2 = document.getElementById("gradientColor2").value;
+  const gradient = `linear-gradient(90deg, ${c1}, ${c2})`;
 
   const preview = document.getElementById("gradientPreview");
   preview.style.background = gradient;
@@ -396,82 +372,7 @@ function generateGradient() {
 }
 
 /***************************************************/
-/*                 Utility Functions              */
-/***************************************************/
-function isLightColor(hex) {
-  const r = parseInt(hex.substr(1, 2), 16);
-  const g = parseInt(hex.substr(3, 2), 16);
-  const b = parseInt(hex.substr(5, 2), 16);
-  const luminance = 0.2126 * r + 0.7152 * g + 0.0722 * b;
-  return luminance > 180;
-}
-
-function showLoadingSpinner(show) {
-  const spinner = document.getElementById("loadingSpinner");
-  spinner.style.display = show ? "flex" : "none";
-}
-
-/***************************************************/
-/*        Favorites Drawer Toggle Logic           */
-/***************************************************/
-document.getElementById("favoritesBtn").addEventListener("click", () => {
-  renderFavorites();
-  openFavorites();
-});
-function openFavorites() {
-  const drawer = document.getElementById("favoritesDrawer");
-  drawer.style.right = "0";
-}
-function closeFavorites() {
-  const drawer = document.getElementById("favoritesDrawer");
-  drawer.style.right = `-${getComputedStyle(drawer).width}`;
-}
-
-/***************************************************/
-/*           Advanced Tools Drawer Logic          */
-/***************************************************/
-document.getElementById("advancedToolsBtn").addEventListener("click", () => {
-  openAdvancedTools();
-  simulateColorBlindness(); // so it shows something by default
-});
-function openAdvancedTools() {
-  const drawer = document.getElementById("advancedToolsDrawer");
-  drawer.style.left = "0";
-}
-function closeAdvancedTools() {
-  const drawer = document.getElementById("advancedToolsDrawer");
-  drawer.style.left = `-${getComputedStyle(drawer).width}`;
-}
-
-/***************************************************/
-/*               Feedback Modal Logic             */
-/***************************************************/
-const feedbackModal = document.getElementById("feedbackModal");
-const feedbackBtn = document.getElementById("feedbackBtn");
-const feedbackForm = document.getElementById("feedbackForm");
-
-feedbackBtn.addEventListener("click", () => {
-  feedbackModal.style.display = "flex";
-});
-
-function closeFeedbackModal() {
-  feedbackModal.style.display = "none";
-}
-
-feedbackForm.addEventListener("submit", (e) => {
-  e.preventDefault();
-  const feedbackText = document.getElementById("feedbackText").value;
-  document.getElementById("feedbackMessage").textContent = "Thank you for your feedback!";
-  console.log("Feedback submitted:", feedbackText);
-  setTimeout(() => {
-    feedbackModal.style.display = "none";
-    document.getElementById("feedbackMessage").textContent = "";
-    feedbackForm.reset();
-  }, 2000);
-});
-
-/***************************************************/
-/*            Cookie Consent Logic                */
+/*             Cookie Consent Handling            */
 /***************************************************/
 function acceptCookies() {
   document.getElementById("cookieConsentModal").style.display = "none";
@@ -482,28 +383,21 @@ function declineCookies() {
 }
 
 /***************************************************/
-/*          Event: Color Picker & Selects         */
+/*                   Utilities                    */
 /***************************************************/
-function updateColors() {
-  // Grab the new color from the picker & updates
-  const colorPicker = document.getElementById("colorPicker");
-  if (colorPicker) {
-    currentColorHex = colorPicker.value.substring(1); // remove '#'
-  }
-  // Grab scheme mode & count
-  currentSchemeMode = document.getElementById("schemeMode").value;
-  currentSchemeCount = document.getElementById("schemeCount").value;
-  fetchColors();
+function showLoadingSpinner(show) {
+  document.getElementById("loadingSpinner").style.display = show ? "flex" : "none";
 }
 
 /***************************************************/
-/*             Initial Page Load Logic            */
+/*             On Page Load: Fetch Colors         */
 /***************************************************/
 window.onload = () => {
   // Show cookies modal if not accepted
   if (document.cookie.indexOf("userAcceptedCookies") === -1) {
     document.getElementById("cookieConsentModal").style.display = "block";
   }
-  // Fetch initial colors
+
+  // Fetch initial colors for the Explorer tab
   fetchColors();
 };
