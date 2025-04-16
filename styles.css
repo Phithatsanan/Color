@@ -9,7 +9,7 @@
   --background-color: #f9f9f9;
   --transition-fast: 0.3s ease;
   --transition-slow: 0.6s ease;
-  --drawer-width: 300px;
+  --drawer-width: 350px;
 }
 
 * {
@@ -36,17 +36,14 @@ body {
   align-items: center;
   padding: 1rem 2rem;
 }
-
 .navbar .logo {
   font-size: 1.5rem;
   font-weight: bold;
 }
-
 .nav-items {
   display: flex;
   gap: 1rem;
 }
-
 .nav-button {
   background-color: transparent;
   border: 2px solid #fff;
@@ -134,6 +131,7 @@ body {
   border-radius: 5px;
   border: 2px solid #ddd;
   font-size: 1rem;
+  margin-left: 0.5rem;
 }
 
 /* SEARCH */
@@ -179,17 +177,16 @@ body {
 }
 .color-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
   gap: 1.5rem;
 }
 .color-block {
   position: relative;
   width: 100%;
-  aspect-ratio: 1/1; /* Make them square */
+  aspect-ratio: 1 / 1; /* square ratio */
   border-radius: 20px;
   box-shadow: 0px 5px 15px var(--shadow-color);
   transition: transform var(--transition-fast), box-shadow var(--transition-fast);
-  color: #fff;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -202,9 +199,10 @@ body {
 }
 .color-name,
 .color-code {
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.6);
   font-weight: bold;
   margin: 0.25rem;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.6);
+  color: #fff;
 }
 .light-text {
   color: #000 !important;
@@ -220,6 +218,18 @@ body {
 .copy-icon:hover {
   color: #fffa;
 }
+.fa-star {
+  position: absolute;
+  top: 10px;
+  right: 45px;
+  cursor: pointer;
+  font-size: 1.3rem;
+  transition: color var(--transition-fast);
+  color: #fff;
+}
+.fa-star:hover {
+  color: gold;
+}
 
 /* FAVORITES DRAWER */
 .favorites-drawer {
@@ -229,7 +239,7 @@ body {
   width: var(--drawer-width);
   height: 100vh;
   background-color: #fff;
-  box-shadow: -2px 0 8px rgba(0,0,0,0.2);
+  box-shadow: -2px 0 8px rgba(0, 0, 0, 0.2);
   color: var(--text-color);
   transition: right var(--transition-fast);
   z-index: 9999;
@@ -266,11 +276,79 @@ body {
   height: 30px;
   border-radius: 5px;
   margin-right: 0.5rem;
+  flex-shrink: 0;
 }
 .remove-favorite {
   margin-left: auto;
   color: var(--secondary-color);
   cursor: pointer;
+}
+
+/* ADVANCED TOOLS DRAWER */
+.advanced-tools-drawer {
+  position: fixed;
+  top: 0;
+  left: -var(--drawer-width);
+  width: var(--drawer-width);
+  height: 100vh;
+  background-color: #fff;
+  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.2);
+  color: var(--text-color);
+  transition: left var(--transition-fast);
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+}
+.advanced-tools-content {
+  overflow-y: auto;
+  padding: 1rem;
+}
+.tool-section {
+  margin-bottom: 2rem;
+}
+.tool-section h3 {
+  margin-bottom: 0.5rem;
+}
+.contrast-inputs,
+.simulator-controls,
+.gradient-controls {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+.contrast-result {
+  font-weight: bold;
+  margin-top: 0.5rem;
+  color: var(--accent-color);
+}
+.simulation-gallery {
+  display: grid;
+  gap: 0.5rem;
+  grid-template-columns: repeat(2, minmax(100px, 1fr));
+  margin-top: 1rem;
+}
+.simulated-swatch {
+  border-radius: 5px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1rem;
+  font-weight: bold;
+  font-size: 0.8rem;
+  text-align: center;
+  min-height: 80px;
+}
+.gradient-preview {
+  width: 100%;
+  height: 100px;
+  margin-top: 1rem;
+  border-radius: 5px;
+}
+.gradient-code {
+  margin-top: 0.5rem;
+  font-weight: bold;
 }
 
 /* FEEDBACK MODAL */
@@ -280,7 +358,7 @@ body {
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0,0,0,0.6);
+  background-color: rgba(0, 0, 0, 0.6);
   display: none;
   justify-content: center;
   align-items: center;
@@ -332,7 +410,7 @@ body {
   position: fixed;
   bottom: 0;
   width: 100%;
-  background-color: rgba(0,0,0,0.8);
+  background-color: rgba(0, 0, 0, 0.8);
   color: #fff;
   padding: 1rem;
   z-index: 999;
@@ -389,7 +467,7 @@ body {
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0,0,0,0.7);
+  background-color: rgba(0, 0, 0, 0.7);
   z-index: 1000;
   display: none;
   align-items: center;
@@ -446,7 +524,7 @@ body {
   }
 }
 
-/* MOBILE RESPONSIVENESS */
+/* RESPONSIVE */
 @media (max-width: 768px) {
   .controls-section {
     flex-direction: column;
@@ -461,5 +539,8 @@ body {
   .nav-button {
     padding: 0.4rem 0.8rem;
     font-size: 0.9rem;
+  }
+  .drawer-header h2 {
+    font-size: 1.2rem;
   }
 }
