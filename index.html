@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>The Ultimate Color Explorer</title>
-  <!-- Font & Icons -->
+  <!-- Icons & Fonts -->
   <link
     rel="stylesheet"
     href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
@@ -13,14 +13,16 @@
     href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap"
     rel="stylesheet"
   />
-  <!-- CSS -->
+  <!-- Main CSS -->
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
+
   <!-- Top Navigation Tabs -->
   <nav class="top-nav">
     <ul class="tab-list">
-      <li class="tab-item active" data-tab="explorerTab">Color Explorer</li>
+      <li class="tab-item active" data-tab="homeTab">Home</li>
+      <li class="tab-item" data-tab="explorerTab">Color Explorer</li>
       <li class="tab-item" data-tab="accessibilityTab">Accessibility</li>
       <li class="tab-item" data-tab="colorBlindnessTab">Color Blindness</li>
       <li class="tab-item" data-tab="gradientTab">Gradients</li>
@@ -29,14 +31,25 @@
     </ul>
   </nav>
 
-  <!-- MAIN CONTENT CONTAINER -->
+  <!-- MAIN CONTAINER -->
   <main class="container">
 
+    <!-- TAB 0: Home / Landing Page -->
+    <section id="homeTab" class="tab-content active">
+      <div class="home-hero fade-in">
+        <h1>The Ultimate Color Explorer</h1>
+        <p>Discover, explore, and interact with colors like never before!</p>
+        <button class="cta-btn" onclick="goToTab('explorerTab')">
+          Start Exploring
+        </button>
+      </div>
+    </section>
+
     <!-- TAB 1: Color Explorer -->
-    <section id="explorerTab" class="tab-content active">
-      <h1>Color Explorer</h1>
-      <p class="tab-intro">
-        Pick a color, generate a matching palette, and copy the code in your preferred format.
+    <section id="explorerTab" class="tab-content">
+      <h1 class="fade-in">Color Explorer</h1>
+      <p class="tab-intro fade-in">
+        Pick a color, generate a matching palette, copy the code, or save as a favorite.
       </p>
 
       <!-- Loading Spinner -->
@@ -45,7 +58,7 @@
       </div>
 
       <!-- Controls -->
-      <div class="controls-section">
+      <div class="controls-section fade-in">
         <!-- Color Picker & Scheme -->
         <div class="picker-wrap">
           <label for="colorPicker">Pick a color:</label>
@@ -107,18 +120,16 @@
       </div>
 
       <!-- Color Grid -->
-      <div id="colorGrid" class="color-grid"></div>
-
+      <div id="colorGrid" class="color-grid fade-in"></div>
     </section>
 
     <!-- TAB 2: Accessibility -->
     <section id="accessibilityTab" class="tab-content">
-      <h1>Accessibility - Contrast Checker</h1>
-      <p class="tab-intro">
-        Compare two colors to ensure your design meets WCAG contrast standards.
+      <h1 class="fade-in">Accessibility - Contrast Checker</h1>
+      <p class="tab-intro fade-in">
+        Compare two colors to ensure your design meets WCAG standards.
       </p>
-
-      <div class="accessibility-controls">
+      <div class="accessibility-controls fade-in">
         <div>
           <label for="contrastColor1">Color 1:</label>
           <input
@@ -128,7 +139,6 @@
             onchange="checkContrast()"
           />
         </div>
-
         <div>
           <label for="contrastColor2">Color 2:</label>
           <input
@@ -139,16 +149,16 @@
           />
         </div>
       </div>
-
-      <div id="contrastResult" class="contrast-result">Contrast Ratio: N/A</div>
+      <div id="contrastResult" class="contrast-result fade-in">Contrast Ratio: N/A</div>
     </section>
 
     <!-- TAB 3: Color Blindness Simulator -->
     <section id="colorBlindnessTab" class="tab-content">
-      <h1>Color Blindness Simulator</h1>
-      <p class="tab-intro">Preview how a color appears under various color vision deficiencies.</p>
-
-      <div class="accessibility-controls">
+      <h1 class="fade-in">Color Blindness Simulator</h1>
+      <p class="tab-intro fade-in">
+        Preview how a single color appears under different color vision types.
+      </p>
+      <div class="accessibility-controls fade-in">
         <label for="simulatorColorPicker">Color:</label>
         <input
           type="color"
@@ -157,56 +167,55 @@
           onchange="simulateColorBlindness()"
         />
       </div>
-
-      <div id="simulationGallery" class="simulation-gallery"></div>
+      <div id="simulationGallery" class="simulation-gallery fade-in"></div>
     </section>
 
     <!-- TAB 4: Gradient Generator -->
     <section id="gradientTab" class="tab-content">
-      <h1>Gradient Generator</h1>
-      <p class="tab-intro">Create a linear gradient between two colors and copy the CSS.</p>
-
-      <div class="accessibility-controls">
+      <h1 class="fade-in">Gradient Generator</h1>
+      <p class="tab-intro fade-in">
+        Create a linear gradient between two colors and copy the CSS.
+      </p>
+      <div class="accessibility-controls fade-in">
         <div>
           <label for="gradientColor1">Color 1:</label>
           <input type="color" id="gradientColor1" value="#FF0000" />
         </div>
-
         <div>
           <label for="gradientColor2">Color 2:</label>
           <input type="color" id="gradientColor2" value="#0000FF" />
         </div>
-
-        <button onclick="generateGradient()">Generate</button>
+        <button onclick="generateGradient()" class="animated-btn">
+          Generate
+        </button>
       </div>
-
-      <div id="gradientPreview" class="gradient-preview"></div>
-      <div id="gradientCode" class="gradient-code">CSS Code: none</div>
+      <div id="gradientPreview" class="gradient-preview fade-in"></div>
+      <div id="gradientCode" class="gradient-code fade-in">CSS Code: none</div>
     </section>
 
     <!-- TAB 5: Favorites -->
     <section id="favoritesTab" class="tab-content">
-      <h1>Your Favorites</h1>
-      <p class="tab-intro">These colors are stored locally in your browser.</p>
-
-      <div id="favoritesList" class="favorites-list">
-        <!-- Dynamically populated from localStorage -->
+      <h1 class="fade-in">Your Favorites</h1>
+      <p class="tab-intro fade-in">
+        These colors are stored locally in your browser. Remove them anytime.
+      </p>
+      <div id="favoritesList" class="favorites-list fade-in">
+        <!-- Populated from localStorage -->
       </div>
     </section>
 
     <!-- TAB 6: Feedback -->
     <section id="feedbackTab" class="tab-content">
-      <h1>Feedback</h1>
-      <p class="tab-intro">
-        We’d love to hear from you! Please share your thoughts below.
+      <h1 class="fade-in">Feedback</h1>
+      <p class="tab-intro fade-in">
+        We’d love to hear from you! Use the form below or email us directly.
       </p>
-
-      <!-- Send feedback to Phithatsanan@outlook.com via mailto -->
       <form
         id="feedbackForm"
         method="POST"
-        action="mailto:Phithatsanan@outlook.com?subject=Feedback%20from%20The%20Ultimate%20Color%20Explorer"
+        action="mailto:Phithatsanan@outlook.com?subject=Feedback%20from%20Color%20Explorer"
         enctype="text/plain"
+        class="fade-in"
       >
         <textarea
           name="feedback"
@@ -215,9 +224,12 @@
           placeholder="Type your feedback here..."
           required
         ></textarea>
-        <button type="submit" class="feedback-submit">Send Feedback</button>
+        <button type="submit" class="feedback-submit animated-btn">
+          Send Feedback
+        </button>
       </form>
     </section>
+
   </main>
 
   <!-- Cookie Consent Banner -->
@@ -234,7 +246,7 @@
     </div>
   </div>
 
-  <!-- JS -->
+  <!-- Scripts -->
   <script src="app.js"></script>
 </body>
 </html>
