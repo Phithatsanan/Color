@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>The Ultimate Color Explorer</title>
+  <!-- Font & Icons -->
   <link
     rel="stylesheet"
     href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
@@ -12,223 +13,212 @@
     href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap"
     rel="stylesheet"
   />
+  <!-- CSS -->
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <!-- Top Navigation -->
-  <nav class="navbar">
-    <div class="logo">
-      <i class="fas fa-palette"></i> The Ultimate Color Explorer
-    </div>
-    <div class="nav-items">
-      <button id="advancedToolsBtn" class="nav-button">
-        <i class="fas fa-tools"></i> Advanced Tools
-      </button>
-      <button id="favoritesBtn" class="nav-button">
-        <i class="fas fa-star"></i> Favorites
-      </button>
-      <button id="feedbackBtn" class="nav-button">
-        <i class="fas fa-comment-dots"></i> Feedback
-      </button>
-    </div>
+  <!-- Top Navigation Tabs -->
+  <nav class="top-nav">
+    <ul class="tab-list">
+      <li class="tab-item active" data-tab="explorerTab">Color Explorer</li>
+      <li class="tab-item" data-tab="accessibilityTab">Accessibility</li>
+      <li class="tab-item" data-tab="colorBlindnessTab">Color Blindness</li>
+      <li class="tab-item" data-tab="gradientTab">Gradients</li>
+      <li class="tab-item" data-tab="favoritesTab">Favorites</li>
+      <li class="tab-item" data-tab="feedbackTab">Feedback</li>
+    </ul>
   </nav>
 
-  <!-- Hero Section -->
-  <header class="hero-section">
-    <div class="hero-content">
-      <h1>Discover, explore, and interact with colors like never before!</h1>
-      <p>
-        Generate accessible color palettes, check contrast, simulate color-blindness, and copy codes in your favorite format.
-      </p>
-      <button class="cta-button" onclick="startOnboarding()">Take a Tour</button>
-    </div>
-  </header>
-
-  <!-- Onboarding Overlay -->
-  <div id="onboardingOverlay" class="overlay">
-    <!-- Onboarding Slides -->
-    <div class="onboarding-slide" id="onboardingSlide1">
-      <div class="onboarding-content">
-        <h2>Welcome!</h2>
-        <p>This tool is your ultimate resource for exploring and testing colors.</p>
-        <button class="onboarding-next" onclick="nextOnboardingSlide()">Next</button>
-      </div>
-    </div>
-    <div class="onboarding-slide" id="onboardingSlide2">
-      <div class="onboarding-content">
-        <h2>Pick a Color</h2>
-        <p>Use the color picker to generate a palette. Then explore advanced tools!</p>
-        <button class="onboarding-next" onclick="nextOnboardingSlide()">Next</button>
-      </div>
-    </div>
-    <div class="onboarding-slide" id="onboardingSlide3">
-      <div class="onboarding-content">
-        <h2>Check Accessibility</h2>
-        <p>Ensure your designs are accessible with contrast checks and color-blindness simulation.</p>
-        <button class="onboarding-next" onclick="endOnboarding()">Got it!</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Loading Spinner -->
-  <div id="loadingSpinner" class="loading-spinner" style="display: none;">
-    <div class="spinner"></div>
-  </div>
-
-  <!-- Main Content -->
+  <!-- MAIN CONTENT CONTAINER -->
   <main class="container">
-    <!-- Color Picker and Options -->
-    <section class="controls-section">
-      <div class="color-picker-wrap">
-        <label for="colorPicker" class="input-label">Pick a color:</label>
-        <input
-          type="color"
-          id="colorPicker"
-          class="color-picker"
-          value="#F6BE00"
-          onchange="updateColors(event)"
-        />
+
+    <!-- TAB 1: Color Explorer -->
+    <section id="explorerTab" class="tab-content active">
+      <h1>Color Explorer</h1>
+      <p class="tab-intro">
+        Pick a color, generate a matching palette, and copy the code in your preferred format.
+      </p>
+
+      <!-- Loading Spinner -->
+      <div id="loadingSpinner" class="loading-spinner" style="display: none;">
+        <div class="spinner"></div>
       </div>
 
-      <!-- Scheme Mode & Count -->
-      <div class="scheme-select-wrap">
-        <label for="schemeMode" class="input-label">Scheme mode:</label>
-        <select id="schemeMode" onchange="updateColors()">
-          <option value="analogic">Analogic</option>
-          <option value="complement">Complement</option>
-          <option value="monochrome">Monochrome</option>
-          <option value="monochrome-dark">Monochrome Dark</option>
-          <option value="monochrome-light">Monochrome Light</option>
-          <option value="analogic-complement">Analogic Complement</option>
-          <option value="triad">Triad</option>
-          <option value="quad">Quad</option>
-        </select>
-      </div>
-      <div class="scheme-select-wrap">
-        <label for="schemeCount" class="input-label">Count:</label>
-        <select id="schemeCount" onchange="updateColors()">
-          <option value="5">5</option>
-          <option value="7">7</option>
-          <option value="9">9</option>
-          <option value="12">12</option>
-        </select>
-      </div>
-
-      <!-- Search Input -->
-      <div class="search-container">
-        <i class="fas fa-search search-icon"></i>
-        <input
-          type="text"
-          id="searchInput"
-          class="search-input"
-          placeholder="Search by name or code..."
-          onkeyup="filterColors()"
-        />
-      </div>
-
-      <!-- Language Selector for Copy Code -->
-      <div class="language-select">
-        <label for="language" class="input-label">Format:</label>
-        <select id="language" onchange="filterColors()">
-          <option value="hex">Hex</option>
-          <option value="css">CSS</option>
-          <option value="js">JavaScript</option>
-          <option value="python">Python</option>
-          <option value="rgb">RGB</option>
-          <option value="hsl">HSL</option>
-          <option value="cmyk">CMYK</option>
-        </select>
-      </div>
-    </section>
-
-    <!-- Color Grid -->
-    <section class="color-grid-section">
-      <div id="colorGrid" class="color-grid"></div>
-    </section>
-  </main>
-
-  <!-- Favorites Drawer -->
-  <aside id="favoritesDrawer" class="favorites-drawer">
-    <div class="drawer-header">
-      <h2>Your Favorites</h2>
-      <button onclick="closeFavorites()" class="close-drawer">&times;</button>
-    </div>
-    <div id="favoritesList" class="favorites-list">
-      <!-- Dynamically populated with favorite colors -->
-    </div>
-  </aside>
-
-  <!-- Advanced Tools Drawer -->
-  <aside id="advancedToolsDrawer" class="advanced-tools-drawer">
-    <div class="drawer-header">
-      <h2>Advanced Tools</h2>
-      <button onclick="closeAdvancedTools()" class="close-drawer">&times;</button>
-    </div>
-    <div class="advanced-tools-content">
-      <!-- Contrast Checker -->
-      <div class="tool-section">
-        <h3>Contrast Checker</h3>
-        <p>Compare two colors to ensure WCAG compliance.</p>
-        <div class="contrast-inputs">
-          <label for="contrastColor1">Color 1:</label>
-          <input type="color" id="contrastColor1" value="#FFFFFF" onchange="checkContrast()"/>
-          <label for="contrastColor2">Color 2:</label>
-          <input type="color" id="contrastColor2" value="#000000" onchange="checkContrast()"/>
-        </div>
-        <div id="contrastResult" class="contrast-result">Contrast Ratio: N/A</div>
-      </div>
-
-      <!-- Color Blindness Simulator (Simple Approach) -->
-      <div class="tool-section">
-        <h3>Color-Blindness Simulator</h3>
-        <p>Preview your main color under different color vision types.</p>
-        <div class="simulator-controls">
-          <label for="simulatorColorPicker">Color:</label>
+      <!-- Controls -->
+      <div class="controls-section">
+        <!-- Color Picker & Scheme -->
+        <div class="picker-wrap">
+          <label for="colorPicker">Pick a color:</label>
           <input
             type="color"
-            id="simulatorColorPicker"
+            id="colorPicker"
             value="#F6BE00"
-            onchange="simulateColorBlindness()"
+            onchange="updateColors()"
           />
         </div>
-        <div id="simulationGallery" class="simulation-gallery">
-          <!-- Will show color boxes for different color-blind types -->
+
+        <div class="picker-wrap">
+          <label for="schemeMode">Scheme mode:</label>
+          <select id="schemeMode" onchange="updateColors()">
+            <option value="analogic">Analogic</option>
+            <option value="complement">Complement</option>
+            <option value="monochrome">Monochrome</option>
+            <option value="monochrome-dark">Monochrome Dark</option>
+            <option value="monochrome-light">Monochrome Light</option>
+            <option value="analogic-complement">Analogic Complement</option>
+            <option value="triad">Triad</option>
+            <option value="quad">Quad</option>
+          </select>
+        </div>
+
+        <div class="picker-wrap">
+          <label for="schemeCount">Count:</label>
+          <select id="schemeCount" onchange="updateColors()">
+            <option value="5">5</option>
+            <option value="7">7</option>
+            <option value="9">9</option>
+            <option value="12">12</option>
+          </select>
+        </div>
+
+        <!-- Search & Format -->
+        <div class="picker-wrap">
+          <label for="searchInput">Search:</label>
+          <input
+            type="text"
+            id="searchInput"
+            placeholder="By name/hex/rgb/hsl..."
+            onkeyup="filterColors()"
+          />
+        </div>
+
+        <div class="picker-wrap">
+          <label for="language">Format:</label>
+          <select id="language" onchange="filterColors()">
+            <option value="hex">Hex</option>
+            <option value="css">CSS</option>
+            <option value="js">JavaScript</option>
+            <option value="python">Python</option>
+            <option value="rgb">RGB</option>
+            <option value="hsl">HSL</option>
+            <option value="cmyk">CMYK</option>
+          </select>
         </div>
       </div>
 
-      <!-- Gradient Generator -->
-      <div class="tool-section">
-        <h3>Gradient Generator</h3>
-        <p>Create a linear gradient between two colors.</p>
-        <div class="gradient-controls">
+      <!-- Color Grid -->
+      <div id="colorGrid" class="color-grid"></div>
+
+    </section>
+
+    <!-- TAB 2: Accessibility -->
+    <section id="accessibilityTab" class="tab-content">
+      <h1>Accessibility - Contrast Checker</h1>
+      <p class="tab-intro">
+        Compare two colors to ensure your design meets WCAG contrast standards.
+      </p>
+
+      <div class="accessibility-controls">
+        <div>
+          <label for="contrastColor1">Color 1:</label>
+          <input
+            type="color"
+            id="contrastColor1"
+            value="#FFFFFF"
+            onchange="checkContrast()"
+          />
+        </div>
+
+        <div>
+          <label for="contrastColor2">Color 2:</label>
+          <input
+            type="color"
+            id="contrastColor2"
+            value="#000000"
+            onchange="checkContrast()"
+          />
+        </div>
+      </div>
+
+      <div id="contrastResult" class="contrast-result">Contrast Ratio: N/A</div>
+    </section>
+
+    <!-- TAB 3: Color Blindness Simulator -->
+    <section id="colorBlindnessTab" class="tab-content">
+      <h1>Color Blindness Simulator</h1>
+      <p class="tab-intro">Preview how a color appears under various color vision deficiencies.</p>
+
+      <div class="accessibility-controls">
+        <label for="simulatorColorPicker">Color:</label>
+        <input
+          type="color"
+          id="simulatorColorPicker"
+          value="#F6BE00"
+          onchange="simulateColorBlindness()"
+        />
+      </div>
+
+      <div id="simulationGallery" class="simulation-gallery"></div>
+    </section>
+
+    <!-- TAB 4: Gradient Generator -->
+    <section id="gradientTab" class="tab-content">
+      <h1>Gradient Generator</h1>
+      <p class="tab-intro">Create a linear gradient between two colors and copy the CSS.</p>
+
+      <div class="accessibility-controls">
+        <div>
           <label for="gradientColor1">Color 1:</label>
           <input type="color" id="gradientColor1" value="#FF0000" />
+        </div>
+
+        <div>
           <label for="gradientColor2">Color 2:</label>
           <input type="color" id="gradientColor2" value="#0000FF" />
-          <button onclick="generateGradient()">Generate</button>
         </div>
-        <div id="gradientPreview" class="gradient-preview"></div>
-        <div id="gradientCode" class="gradient-code">CSS Code: none</div>
-      </div>
-    </div>
-  </aside>
 
-  <!-- Feedback Modal -->
-  <div id="feedbackModal" class="feedback-modal">
-    <div class="modal-content">
-      <button class="close-modal" onclick="closeFeedbackModal()">&times;</button>
-      <h2>We'd love to hear your feedback!</h2>
-      <form id="feedbackForm">
+        <button onclick="generateGradient()">Generate</button>
+      </div>
+
+      <div id="gradientPreview" class="gradient-preview"></div>
+      <div id="gradientCode" class="gradient-code">CSS Code: none</div>
+    </section>
+
+    <!-- TAB 5: Favorites -->
+    <section id="favoritesTab" class="tab-content">
+      <h1>Your Favorites</h1>
+      <p class="tab-intro">These colors are stored locally in your browser.</p>
+
+      <div id="favoritesList" class="favorites-list">
+        <!-- Dynamically populated from localStorage -->
+      </div>
+    </section>
+
+    <!-- TAB 6: Feedback -->
+    <section id="feedbackTab" class="tab-content">
+      <h1>Feedback</h1>
+      <p class="tab-intro">
+        We’d love to hear from you! Please share your thoughts below.
+      </p>
+
+      <!-- Send feedback to Phithatsanan@outlook.com via mailto -->
+      <form
+        id="feedbackForm"
+        method="POST"
+        action="mailto:Phithatsanan@outlook.com?subject=Feedback%20from%20The%20Ultimate%20Color%20Explorer"
+        enctype="text/plain"
+      >
         <textarea
+          name="feedback"
           id="feedbackText"
           rows="5"
-          placeholder="Your feedback here..."
+          placeholder="Type your feedback here..."
+          required
         ></textarea>
-        <button type="submit" class="feedback-submit">Submit Feedback</button>
+        <button type="submit" class="feedback-submit">Send Feedback</button>
       </form>
-      <p id="feedbackMessage"></p>
-    </div>
-  </div>
+    </section>
+  </main>
 
   <!-- Cookie Consent Banner -->
   <div id="cookieConsentModal" class="cookie-modal">
@@ -244,14 +234,7 @@
     </div>
   </div>
 
-  <footer class="footer">
-    <p>
-      Powered by
-      <a href="https://www.thecolorapi.com/" target="_blank">The Color API</a>
-      | Created by <strong>Phithatsanan Lertthanasiriwat</strong>
-    </p>
-  </footer>
-
+  <!-- JS -->
   <script src="app.js"></script>
 </body>
 </html>
